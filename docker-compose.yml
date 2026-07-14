@@ -1,0 +1,43 @@
+version: "3.8"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: fusion-app:local
+    container_name: fusion-web
+    ports:
+      - "8080:80"
+    environment:
+      DB_HOST: db
+      DB_USER: fusion_user
+      DB_PASS: fusion_pass
+      DB_NAME: dance
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    container_name: fusion-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root_pass
+      MYSQL_DATABASE: dance
+      MYSQL_USER: fusion_user
+      MYSQL_PASSWORD: fusion_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./Application/dance.sql:/docker-entrypoint-initdb.d/dance.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_pass"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  db_data:
