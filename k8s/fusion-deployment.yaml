@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fusion-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: fusion
+  template:
+    metadata:
+      labels:
+        app: fusion
+    spec:
+      containers:
+      - name: fusion-container
+        image: fusion-app:1.0
+        ports:
+        - containerPort: 80
+        env:
+            - name: DB_HOST
+              value: mysql-service
+            - name: DB_PORT
+              value: "3306"
+            - name: DB_USER
+              value: fusionuser
+            - name: DB_PASSWORD
+              value: fusionpass
+            - name: DB_NAME
+              value: fusiondb
